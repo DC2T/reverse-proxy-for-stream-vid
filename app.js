@@ -65,9 +65,9 @@ function downloadFile() {
 const streamVideoRouter = require("./src/routers/stream-video.router");
 
 // app.use("/stream/get-link/:id", cache, getLink);
-app.use("/", (req, res) => {
-  res.send("oki");
-});
+// app.use("/", (req, res) => {
+//   res.send("oki");
+// });
 app.use(streamVideoRouter);
 
 app.listen(PORT, () => {
