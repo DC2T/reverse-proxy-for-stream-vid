@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "npm i",
     "start": "node app.js",
     "test": "nodemon test.js",
     "test2": "nodemon test2.js"
