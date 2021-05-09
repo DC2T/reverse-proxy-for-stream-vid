@@ -4,7 +4,8 @@ const { promisify } = require("util");
 const queryString = require("query-string");
 
 const REDIS_PROT = process.env.REDIS_PROT || 6379;
-const client_redis = redis.createClient(REDIS_PROT);
+const REDIS_HOST = process.env.REDIS_HOST || "redis";
+const client_redis = redis.createClient(REDIS_PROT, REDIS_HOST);
 const getAsync = promisify(client_redis.get).bind(client_redis);
 
 // const file_id = "1zIH-mJciulvSZh3GfZ_fbAKGd2qNQkMs";
