@@ -3,7 +3,7 @@ const redis = require("redis");
 const { promisify } = require("util");
 const queryString = require("query-string");
 
-const REDIS_PROT = process.env.PORT || 6379;
+const REDIS_PROT = process.env.REDIS_PROT || 6379;
 const client_redis = redis.createClient(REDIS_PROT);
 const getAsync = promisify(client_redis.get).bind(client_redis);
 

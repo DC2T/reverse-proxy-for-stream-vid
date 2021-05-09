@@ -1,4 +1,5 @@
 require("dotenv").config();
+
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
@@ -69,6 +70,6 @@ app.use("/", (req, res) => {
 });
 app.use(streamVideoRouter);
 
-app.listen(3000, () => {
-  console.log(`App listening on port: ${3000}`);
+app.listen(PORT, () => {
+  console.log(`App listening on port: ${PORT}`);
 });
