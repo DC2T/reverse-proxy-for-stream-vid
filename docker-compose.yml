@@ -1,4 +1,4 @@
-version: '3.4'
+version: "3.4"
 
 services:
   proxy:
@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
     environment:
-      NODE_ENV: production
+      - NODE_ENV=production
       # phần này ta định nghĩa ở file .env nhé
       # - DB_HOST=${DB_HOST}
       # - DB_NAME=${DB_NAME}
@@ -17,10 +17,10 @@ services:
     ports:
       - 5003:5003
     depends_on:
-        - redis
-  
+      - redis
+
   redis:
     image: redis:6-alpine
     volumes:
       - .docker/data/redis:/data
-    restart: unless-stopped 
+    restart: unless-stopped
