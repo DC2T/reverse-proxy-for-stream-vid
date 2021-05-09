@@ -8,5 +8,19 @@ services:
       dockerfile: ./Dockerfile
     environment:
       NODE_ENV: production
+      # phần này ta định nghĩa ở file .env nhé
+      # - DB_HOST=${DB_HOST}
+      # - DB_NAME=${DB_NAME}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - PORT=${PORT}
     ports:
       - 5003:5003
+    depends_on:
+        - redis
+  
+  redis:
+    image: redis:6-alpine
+    volumes:
+      - .docker/data/redis:/data
+    restart: unless-stopped 
