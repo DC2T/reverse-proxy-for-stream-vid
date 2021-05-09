@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+  proxy:
+    image: proxy
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: production
+    ports:
+      - 5003:5003

@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon app.js"
+    "build": "npm i",
+    "start": "nodemon app.js",
+    "test": "nodemon test.js",
+    "test2": "nodemon test2.js"
   },
   "author": "",
   "license": "ISC",
