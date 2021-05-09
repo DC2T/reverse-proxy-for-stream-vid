@@ -31,11 +31,6 @@ async function streamVideo() {
         if (Number(url[0]) === 18) console.log("url360 : " + url[1]);
         if (Number(url[0]) === 22) console.log("url720: " + url[1]);
       });
-
-      // await download(
-      //   `https://drive.google.com/u/7/get_video_info?docid=${file_id}`,
-      //   opts
-      // ).pipe(fs.createWriteStream(`./public/video/${file_id}.mp4`));
     });
 }
 streamVideo();

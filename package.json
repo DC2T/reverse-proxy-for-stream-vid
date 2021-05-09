@@ -18,7 +18,8 @@
     "http-proxy": "^1.18.1",
     "node-fetch": "^2.6.1",
     "query-string": "^7.0.0",
-    "redis": "^3.1.2"
+    "redis": "^3.1.2",
+    "util": "^0.12.3"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"

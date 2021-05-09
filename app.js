@@ -1,116 +1,17 @@
 require("dotenv").config();
 const express = require("express");
-const { google } = require("googleapis");
 const path = require("path");
 const fs = require("fs");
-const redis = require("redis");
-const { default: fetch, Headers } = require("node-fetch");
+
+const fetch = require("node-fetch");
 
 const PORT = process.env.PORT || 3000;
-const REDIS_PROT = process.env.PORT || 6379;
-
-const client_redis = redis.createClient(REDIS_PROT);
 
 const app = express();
 
 // app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "/public")));
-
-const CLIENT_ID =
-  "894731050040-286akvbp41qkckh6kumlhmmtpbhb6l8d.apps.googleusercontent.com";
-const CLIENT_SECRET = "qmLxvFR6g6Y6R-Ouxx5U6oLz";
-const REDIRECT_URI = "https://developers.google.com/oauthplayground";
-
-const REFRESH_TOKEN =
-  "1//04qEk2eY8QqNVCgYIARAAGAQSNwF-L9IrjUQNmzYVqRyXk-eaimDG1MXpuSzto70eFTYQG58XCXM5zjyv-V7ptzAt4kf3g0obpSE";
-
-const oauth2Client = new google.auth.OAuth2(
-  CLIENT_ID,
-  CLIENT_SECRET,
-  REDIRECT_URI
-);
-oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
-
-const drive = google.drive({
-  version: "v3",
-  auth: oauth2Client,
-});
-
-const filePath = path.join(__dirname, "anh.jpg");
-
-async function uploadFile() {
-  try {
-    const response = await drive.files.create({
-      requestBody: {
-        name: "gai_dep.jpg",
-        mimeType: "image/jpg",
-      },
-      media: {
-        mimeType: "image/jpg",
-        body: fs.createReadStream(filePath),
-      },
-    });
-    console.log(response.data);
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-// uploadFile();
-
-async function getLink(req, res) {
-  const id = req.params.id;
-  try {
-    const fileId = "1zIH-mJciulvSZh3GfZ_fbAKGd2qNQkMs";
-    // await drive.permissions.create({
-    //   fileId: fileId,
-    //   requestBody: {
-    //     role: "reader",
-    //     type: "anyone",
-    //   },
-    // });
-    // const result = await drive.files.get({
-    //   fileId: fileId,
-    //   fields: "webViewLink, webContentLink",
-    // });
-
-    // client_redis.setex(id, 3600, result.data.webViewLink);
-
-    // res.send(result.data);
-
-    //  ===========================================================
-
-    var dest = fs.createWriteStream(`./public/video/${fileId}.mp4`);
-    await drive.files
-      .get(
-        {
-          fileId: fileId,
-          alt: "media",
-        },
-        { responseType: "stream" }
-      )
-      .then((response) => {
-        response.data
-          .on("end", function () {
-            console.log("Done");
-            client_redis.setex(
-              id,
-              3600,
-              `${process.env.URL}/video/${fileId}.mp4`
-            );
-            res.send(`${process.env.URL}/video/${fileId}.mp4`);
-          })
-          .on("error", function (err) {
-            console.log("Error during download", err);
-          })
-          .pipe(dest);
-      });
-    //
-  } catch (error) {
-    console.log(error);
-  }
-}
 
 async function cache(req, res, next) {
   const id = req.params.id;
@@ -159,62 +60,11 @@ function downloadFile() {
     res.body.pipe(dest);
   });
 }
-const file_id = "1zIH-mJciulvSZh3GfZ_fbAKGd2qNQkMs";
 
-async function streamVideo() {
-  const cookie = await fetch(
-    `https://drive.google.com/u/7/get_video_info?docid=${file_id}`
-  ).then((res) => res.headers.raw()["set-cookie"][0].split("; ")[0]);
+const streamVideoRouter = require("./src/routers/stream-video.router");
 
-  const opts = {
-    headers: {
-      cookie: cookie,
-    },
-  };
-
-  fetch(`https://drive.google.com/u/7/get_video_info?docid=${file_id}`, opts)
-    .then((res) => res.text())
-    .then(async (body) => {
-      const data = queryString.parse(body);
-      const arrUrl = data.fmt_stream_map.split(",");
-      arrUrl.forEach((element) => {
-        const url = element.split("|");
-        if (Number(url[0]) === 18) console.log("url360 : " + url[1]);
-        if (Number(url[0]) === 22) console.log("url720: " + url[1]);
-      });
-
-      // await download(
-      //   `https://drive.google.com/u/7/get_video_info?docid=${file_id}`,
-      //   opts
-      // ).pipe(fs.createWriteStream(`./public/video/${file_id}.mp4`));
-    });
-}
-const urlStream =
-  "https://r3---sn-ogul7n7d.c.drive.google.com/videoplayback?expire=1620468254&ei=3imWYLCuG7mC9-APz8G1yAU&ip=14.245.28.160&cp=QVRHUkVfV1JTRVhPOjJRNDYteEUta3ZwbWlqT0pLX2phckhtUEFzbTUxSVYtQVNIU3RmRFNXX1c&id=38207e78caec9fbe&itag=22&source=webdrive&requiressl=yes&mh=7k&mm=32&mn=sn-ogul7n7d&ms=su&mv=m&mvi=3&pl=22&ttl=transient&susc=dr&driveid=1NURiFyCKEId8KJjfWoaoCwpBGhJN-vqN&app=explorer&mime=video/mp4&vprv=1&prv=1&dur=3600.068&lmt=1620453273450093&mt=1620453624&sparams=expire%2Cei%2Cip%2Ccp%2Cid%2Citag%2Csource%2Crequiressl%2Cttl%2Csusc%2Cdriveid%2Capp%2Cmime%2Cvprv%2Cprv%2Cdur%2Clmt&sig=AOq0QJ8wRQIhAPUtV1td9R5U9JwzP-lq6U-EBnGR65UToyAgHIyuoTwoAiA9p_KVweDXhwAgSqeUzrlsPZIEQ23FfXcBWXG5W0kK4A==&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl&lsig=AG3C_xAwRgIhAJoLFT96uDNGLb5P9DXD-P3J26lqaWf7xggJbqEa8xBjAiEAp9xNYsbRDRgLDLCjVxCobssO82dfPOs8PxpG9-XQxjI=";
-async function playVideo2(req, res) {
-  const headers = {
-    "cache-control": "max-age=0,s-maxage=21600",
-    "content-type": "video/mp4",
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Range,User-Agent",
-  };
-  req.headers["host"] = "";
-  req.headers["cookie"] = "DRIVE_STREAM=Wqvzpnka0kQ";
-  const getVideo = await fetch(urlStream, {
-    method: "GET",
-    headers: req.headers,
-  });
-
-  headers["content-range"] = `${getVideo.headers.get("content-range")}`;
-  headers["content-length"] = `${getVideo.headers.get("content-length")}`;
-
-  res.writeHead(206, headers);
-  getVideo.body.pipe(res);
-}
-
-app.use("/stream/get-link/:id", cache, getLink);
-app.use("/playvideo", playVideo2);
+// app.use("/stream/get-link/:id", cache, getLink);
+app.use(streamVideoRouter);
 
 app.listen(PORT, () => {
   console.log(`App listening on port: ${PORT}`);
