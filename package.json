@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npm i",
-    "start": "app.js",
+    "start": "node app.js",
     "test": "nodemon test.js",
     "test2": "nodemon test2.js"
   },
