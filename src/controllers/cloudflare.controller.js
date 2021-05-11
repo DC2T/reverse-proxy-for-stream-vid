@@ -7,7 +7,8 @@ const getFile = async (req, res) => {
   const urlDownload = `https://drive.google.com/uc?id=${id}&export=download`;
 
   await fetch(urlDownload).then((response) => {
-    res.status(200);
+    res.setHeader("Content-Type", "charset=utf-8");
+    res.writeHead(200, { "Access-Control-Allow-Origin": "*" });
     response.body.pipe(res);
   });
 };
