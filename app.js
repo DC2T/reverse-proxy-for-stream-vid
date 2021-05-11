@@ -63,12 +63,14 @@ function downloadFile() {
 }
 
 const streamVideoRouter = require("./src/routers/stream-video.router");
+const cloudflareRouter = require("./src/routers/cloudflare.router");
 
 // app.use("/stream/get-link/:id", cache, getLink);
 // app.use("/abc", (req, res) => {
 //   res.send("oki");
 // });
 app.use(streamVideoRouter);
+app.use(cloudflareRouter);
 
 app.listen(PORT, () => {
   console.log(`App listening on port: ${PORT}`);
