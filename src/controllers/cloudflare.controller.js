@@ -1,4 +1,5 @@
 const fetch = require("node-fetch");
+const apiGoogle = require("../api-driver/api-drive");
 
 const getFile = async (req, res) => {
   const id = req.params.id;
@@ -16,11 +17,14 @@ const getFile = async (req, res) => {
 };
 
 const streamVideoM3u8 = async (req, res) => {
-  const id = req.params.id;
+  const id_foldername = req.params.id;
+  const filename = req.params.filename;
 
-  console.log(id);
-  // const url = `https://my-worker.daophimdev.workers.dev/cache-file?id=${id}`;
-  const url = `https://my-worker.daophimdev.workers.dev/test-kv?id=${id}`;
+  const id_file = await apiGoogle.getFileChild(filename, id_foldername);
+
+  const id = id_file.id;
+  const url = `https://my-worker.daophimdev.workers.dev/cache-file?id=${id}`;
+  // const url = `https://my-worker.daophimdev.workers.dev/test-kv?id=${id}`;
 
   await fetch(url).then((response) => {
     res.writeHead(200, {

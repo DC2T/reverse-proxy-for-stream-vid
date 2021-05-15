@@ -65,12 +65,24 @@ function downloadFile() {
 const streamVideoRouter = require("./src/routers/stream-video.router");
 const cloudflareRouter = require("./src/routers/cloudflare.router");
 
+const apiGoogle = require("./src/api-driver/api-drive");
+
 // app.use("/stream/get-link/:id", cache, getLink);
 // app.use("/abc", (req, res) => {
 //   res.send("oki");
 // });
 app.use(streamVideoRouter);
 app.use(cloudflareRouter);
+app.use("/get-name-file/:id_foldername/:filename", (req, res) => {
+  const filename = req.params.filename;
+  const id_foldername = req.params.id_foldername;
+  apiGoogle
+    .getFileChild(filename, id_foldername)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => res.send(err));
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port: ${PORT}`);

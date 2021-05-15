@@ -2,13 +2,11 @@ const { google } = require("googleapis");
 const path = require("path");
 const fs = require("fs");
 
-const CLIENT_ID =
-  "894731050040-286akvbp41qkckh6kumlhmmtpbhb6l8d.apps.googleusercontent.com";
-const CLIENT_SECRET = "qmLxvFR6g6Y6R-Ouxx5U6oLz";
-const REDIRECT_URI = "https://developers.google.com/oauthplayground";
+const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
 
-const REFRESH_TOKEN =
-  "1//04qEk2eY8QqNVCgYIARAAGAQSNwF-L9IrjUQNmzYVqRyXk-eaimDG1MXpuSzto70eFTYQG58XCXM5zjyv-V7ptzAt4kf3g0obpSE";
+const REFRESH_TOKEN = process.env.GOOGLE_REFRESH_TOKEN;
 
 const oauth2Client = new google.auth.OAuth2(
   CLIENT_ID,
@@ -22,82 +20,202 @@ const drive = google.drive({
   auth: oauth2Client,
 });
 
-const filePath = path.join(__dirname, "anh.jpg");
-
-const uploadFile = async () => {
-  try {
-    const response = await drive.files.create({
-      requestBody: {
-        name: "gai_dep.jpg",
-        mimeType: "image/jpg",
-      },
-      media: {
-        mimeType: "image/jpg",
-        body: fs.createReadStream(filePath),
-      },
-    });
-    console.log(response.data);
-  } catch (error) {
-    console.log(error);
-  }
+const isExists = (folderName, cb) => {
+  drive.files.list(
+    {
+      fields: "nextPageToken, files(id, name)",
+    },
+    (err, res) => {
+      if (err) return console.log("The API returned an error: " + err);
+      const files = res.data.files;
+      let found = false;
+      for (const i in files) {
+        let file = files[i];
+        if (file.name === folderName) {
+          // console.log(`${file.name} (${file.id})`);
+          found = true;
+          cb([found, file.id]);
+          break;
+        }
+      }
+      if (!found) {
+        cb([found, ""]);
+      }
+    }
+  );
 };
 
-// uploadFile();
-
-const getLink = async (req, res) => {
-  const id = req.params.id;
-  try {
-    const fileId = "1zIH-mJciulvSZh3GfZ_fbAKGd2qNQkMs";
-    // await drive.permissions.create({
-    //   fileId: fileId,
-    //   requestBody: {
-    //     role: "reader",
-    //     type: "anyone",
-    //   },
-    // });
-    // const result = await drive.files.get({
-    //   fileId: fileId,
-    //   fields: "webViewLink, webContentLink",
-    // });
-
-    // client_redis.setex(id, 3600, result.data.webViewLink);
-
-    // res.send(result.data);
-
-    //  ===========================================================
-
-    var dest = fs.createWriteStream(`./public/video/${fileId}.mp4`);
-    await drive.files
-      .get(
-        {
-          fileId: fileId,
-          alt: "media",
-        },
-        { responseType: "stream" }
-      )
-      .then((response) => {
-        response.data
-          .on("end", function () {
-            console.log("Done");
-            client_redis.setex(
-              id,
-              3600,
-              `${process.env.URL}/video/${fileId}.mp4`
+const createFolder = (cfolderName, pfolderName, cb) => {
+  /* 
+  param cfolderName: is child folder name 
+  param pfolderName: is parent folder name
+   */
+  if (pfolderName) {
+    isExists(pfolderName, (p) => {
+      if (p[0]) {
+        isExists(cfolderName, (c) => {
+          if (!c[0]) {
+            let fileMetadata = {
+              name: cfolderName,
+              parents: [p[1]],
+              mimeType: "application/vnd.google-apps.folder",
+            };
+            drive.files.create(
+              {
+                resource: fileMetadata,
+                fields: "id",
+              },
+              function (err, file) {
+                if (err) {
+                  // Handle error
+                  console.error(err);
+                } else {
+                  console.log(`Folder ${cfolderName} Id: ${file.data.id}`);
+                  cb(file.data.id);
+                }
+              }
             );
-            res.send(`${process.env.URL}/video/${fileId}.mp4`);
-          })
-          .on("error", function (err) {
-            console.log("Error during download", err);
-          })
-          .pipe(dest);
-      });
-    //
-  } catch (error) {
-    console.log(error);
+          } else {
+            console.log(`${cfolderName} is Already Exists - ${c[1]}`);
+            cb(c[1]);
+          }
+        });
+      }
+    });
+  } else {
+    isExists(cfolderName, (c) => {
+      if (!c[0]) {
+        let fileMetadata = {
+          name: cfolderName,
+          mimeType: "application/vnd.google-apps.folder",
+        };
+        drive.files.create(
+          {
+            resource: fileMetadata,
+            fields: "id",
+          },
+          function (err, file) {
+            if (err) {
+              // Handle error
+              console.error(err);
+            } else {
+              console.log(`Folder ${cfolderName} Id: ${file.data.id}`);
+              cb(file.data.id);
+            }
+          }
+        );
+      } else {
+        console.log(`${cfolderName} is Already Exists - ${c[1]}`);
+        cb(c[1]);
+      }
+    });
   }
+};
+const permission = (id) => {
+  let permission = {
+    type: "user",
+    role: "reader",
+    emailAddress: "4bits.1001@gmail.com",
+  };
+  drive.permissions.create(
+    {
+      resource: permission,
+      fileId: id,
+      fields: "id",
+    },
+    function (err, res) {
+      if (err) {
+        // Handle error...
+        console.log(
+          `Sorry, the items were successfully shared but emails could not be sent to ${permission["emailAddress"]}.`
+        );
+      } else {
+        console.log("Permission ID: ", res.data.id);
+      }
+    }
+  );
+};
+const uploadFile = (folderId, filePath, fileName) => {
+  let fileMetadata = {
+    name: fileName,
+    parents: [folderId],
+  };
+  let media = {
+    mimeType: "video/mp4, image/jpeg",
+    body: fs.createReadStream(filePath),
+  };
+  drive.files.create(
+    {
+      resource: fileMetadata,
+      media: media,
+      fields: "id",
+    },
+    function (err, file) {
+      if (err) {
+        // Handle error
+        console.error(err);
+      } else {
+        console.log("File Id: ", file.data.id);
+        fs.unlinkSync(filePath);
+        console.log(`Deleted ${filePath} in local machine`);
+        return file.data.id;
+      }
+    }
+  );
+};
+
+const isExists1 = (folderName, cb) => {
+  drive.files.list(
+    {
+      fields: "nextPageToken, files(id, name)",
+    },
+    (err, res) => {
+      if (err) return console.log("The API returned an error: " + err);
+      const files = res.data.files;
+      let found = false;
+      for (const i in files) {
+        let file = files[i];
+        if (file.name === folderName) {
+          // console.log(`${file.name} (${file.id})`);
+          found = true;
+          cb({ status: found, file_id: file.id });
+          break;
+        }
+      }
+      if (!found) {
+        cb({ status: found, file_id: null });
+      }
+    }
+  );
+};
+
+const getFileChild = async (filename, id_foldername) => {
+  return new Promise((resolve, reject) => {
+    const fileId = id_foldername;
+    drive.files.list(
+      {
+        includeRemoved: false,
+        spaces: "drive",
+        fileId: fileId,
+        fields:
+          "nextPageToken, files(id, name, parents, mimeType, modifiedTime)",
+        q: `'${fileId}' in parents and fullText contains '${filename}'`,
+      },
+      function (err, response) {
+        if (err) {
+          return reject(err);
+        }
+        if (response.data.files[0]) return resolve(response.data.files[0]);
+        return reject(null);
+      }
+    );
+  });
 };
 
 module.exports = {
+  permission,
+  createFolder,
   uploadFile,
-  getLink,
+  isExists,
+  getFileChild,
 };
