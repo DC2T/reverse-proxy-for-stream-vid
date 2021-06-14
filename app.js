@@ -64,6 +64,7 @@ function downloadFile() {
 
 const streamVideoRouter = require("./src/routers/stream-video.router");
 const cloudflareRouter = require("./src/routers/cloudflare.router");
+const getUrlRouter = require("./src/routers/get-url.router");
 
 const apiGoogle = require("./src/api-driver/api-drive");
 
@@ -73,6 +74,7 @@ const apiGoogle = require("./src/api-driver/api-drive");
 // });
 app.use(streamVideoRouter);
 app.use(cloudflareRouter);
+app.use(getUrlRouter);
 app.use("/get-name-file/:id_foldername/:filename", (req, res) => {
   const filename = req.params.filename;
   const id_foldername = req.params.id_foldername;

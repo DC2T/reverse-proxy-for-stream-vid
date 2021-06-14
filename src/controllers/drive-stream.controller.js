@@ -1,23 +1,16 @@
 const fetch = require("node-fetch");
-const redis = require("redis");
-const { promisify } = require("util");
+const { client_redis, getAsync } = require("../redis/redis");
 const queryString = require("query-string");
-
-const REDIS_PROT = process.env.REDIS_PROT || 6379;
-const REDIS_HOST = process.env.REDIS_HOST || "redis";
-
-const client_redis = redis.createClient(REDIS_PROT, REDIS_HOST);
-const getAsync = promisify(client_redis.get).bind(client_redis);
+const { decrypt } = require("../lib/mahoa");
 
 // const file_id = "1zIH-mJciulvSZh3GfZ_fbAKGd2qNQkMs";
 
 const getLinkStream = async (req, res, next) => {
-  const idMovieStream = req.query.id;
+  const id = req.query.id;
 
   //lấy dữ liệu từ cache
-  const cookieStream = await getAsync(`${idMovieStream}_cookie`);
-  const urlStream = await getAsync(`${idMovieStream}_urlStream`);
-
+  const cookieStream = await getAsync(`${id}_cookie`);
+  const urlStream = await getAsync(`${id}_urlStream`);
   // nếu tồn tại thì nhảy tiếp
   if (cookieStream && urlStream) {
     req.cookieStream = cookieStream;
@@ -26,6 +19,8 @@ const getLinkStream = async (req, res, next) => {
   }
   // không thì tìm nạp
   else {
+    console.log("vào đây");
+    const idMovieStream = decrypt(id);
     const cookieStream = await fetch(
       `https://drive.google.com/u/7/get_video_info?docid=${idMovieStream}`
     ).then(
@@ -49,8 +44,8 @@ const getLinkStream = async (req, res, next) => {
         //lấy chất lượng cao nhất
         const url = arrUrl[arrUrl.length - 1].split("|")[1];
         //lưu url vào cache
-        client_redis.setex(`${idMovieStream}_cookie`, 3600, cookieStream);
-        client_redis.setex(`${idMovieStream}_urlStream`, 3600, url);
+        client_redis.setex(`${id}_cookie`, 3600, cookieStream);
+        client_redis.setex(`${id}_urlStream`, 3600, url);
 
         req.cookieStream = cookieStream;
         req.urlStream = url;
@@ -76,7 +71,7 @@ const streamVideo = async (req, res) => {
     method: "GET",
     headers: req.headers,
   });
-  console.log(getVideo.headers);
+  // console.log(getVideo.headers);
   headers["content-range"] = `${getVideo.headers.get("content-range")}`;
   headers["content-length"] = `${getVideo.headers.get("content-length")}`;
 

@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.0.20",
+    "crypto-js": "^4.0.0",
     "dotenv": "^8.3.0",
     "download": "^8.0.0",
     "express": "^4.17.1",
