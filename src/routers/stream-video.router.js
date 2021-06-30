@@ -1,7 +1,7 @@
-const express = require("express");
-const router = express.Router();
-const controller = require("../controllers/drive-stream.controller");
+const express = require('express')
+const router = express.Router()
+const controller = require('../controllers/drive-stream.controller')
 
-router.get("/stream-video", controller.getLinkStream, controller.streamVideo);
+router.get('/stream-video', controller.getLinkStream, controller.streamVideo)
 
-module.exports = router;
+module.exports = router
