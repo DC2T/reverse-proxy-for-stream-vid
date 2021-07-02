@@ -14,7 +14,6 @@ const getLinkStream = async (req, res, next) => {
     else {
         idMovieStream = decrypt(id)
         cookieStream = await getCookie(idMovieStream)
-        console.log('cookieStream ', cookieStream)
         client_redis.setex(`cookie`, 60 * 60 * 3 - 10 * 60, cookieStream)
         req.cookieStream = cookieStream
     }
@@ -74,7 +73,6 @@ function getUrlStream(idMovieStream, cookieStream) {
             .then((response) => response.text())
             .then(async (body) => {
                 const data = queryString.parse(body)
-                console.log(data)
                 const arrUrl = data.fmt_stream_map.split(',')
                 //lấy chất lượng cao nhất
                 const url = arrUrl[arrUrl.length - 1].split('|')[1]
