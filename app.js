@@ -9,7 +9,6 @@ const fetch = require('node-fetch')
 const PORT = process.env.PORT || 3000
 
 const app = express()
-
 // app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '/public')))
@@ -67,6 +66,8 @@ function downloadFile() {
 const streamVideoRouter = require('./src/routers/stream-video.router')
 const cloudflareRouter = require('./src/routers/cloudflare.router')
 const getUrlRouter = require('./src/routers/get-url.router')
+const streamMotPhjm = require('./src/routers/stream-video-mp')
+const streamHydrax = require('./src/routers/get-url-hydrax')
 
 const apiGoogle = require('./src/api-driver/api-drive')
 
@@ -77,6 +78,8 @@ const apiGoogle = require('./src/api-driver/api-drive')
 app.use(streamVideoRouter)
 app.use(cloudflareRouter)
 app.use(getUrlRouter)
+app.use(streamMotPhjm)
+app.use(streamHydrax)
 app.use('/get-name-file/:id_foldername/:filename', (req, res) => {
     const filename = req.params.filename
     const id_foldername = req.params.id_foldername
