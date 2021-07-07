@@ -9,8 +9,6 @@ services:
         build:
             context: .
             dockerfile: ./Dockerfile
-        depends_on:
-            - redis
         environment:
             - NODE_ENV=production
             - REDIS_HOST=${REDIS_HOST}
@@ -18,10 +16,10 @@ services:
             - PORT=${PORT}
         ports:
             - 3000:3000
+        depends_on:
+            - redis
         networks:
             - app-network
-        restart: unless-stopped
-
     redis:
         image: redis:6-alpine
         volumes:
