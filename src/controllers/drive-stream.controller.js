@@ -81,8 +81,8 @@ function getUrlStream(idMovieStream, cookieStream) {
         .catch((err) => console.log(err))
 }
 
-function getCookie(idMovieStream) {
-    return fetch(
+async function getCookie(idMovieStream) {
+    return await fetch(
         `https://drive.google.com/u/7/get_video_info?docid=${idMovieStream}`
     )
         .then((response) => {
