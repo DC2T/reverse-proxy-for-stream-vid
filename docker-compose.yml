@@ -1,26 +1,42 @@
-version: "3.4"
+version: '3.4'
 
 services:
-  proxy:
-    image: proxy
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    environment:
-      - NODE_ENV=production
-      # phần này ta định nghĩa ở file .env nhé
-      # - DB_HOST=${DB_HOST}
-      # - DB_NAME=${DB_NAME}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-      - PORT=${PORT}
-    ports:
-      - 5003:5003
-    depends_on:
-      - redis
+    stream:
+        image: stream
+        container_name: stream_app
+        volumes:
+            - ./daophim/stream:/app
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        environment:
+            NODE_ENV: production
+        ports:
+            - 3000:3000
+        networks:
+            - app-network
+        restart: unless-stopped
 
-  redis:
-    image: redis:6-alpine
-    volumes:
-      - .docker/data/redis:/data
-    restart: unless-stopped
+    redis:
+        image: redis:6-alpine
+        volumes:
+            - .docker/data/redis:/data
+        restart: unless-stopped
+        networks:
+            - app-network
+
+    nginx:
+        restart: always
+        container_name: nginx_webserver
+        build:
+            context: ./nginx
+        ports:
+            - '80:80'
+        depends_on:
+            - stream
+        networks:
+            - app-network
+
+networks:
+    app-network:
+        driver: bridge

@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "npm i",
-    "start": "nodemon app.js",
-    "test": "nodemon test.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "author": "",
   "license": "ISC",
