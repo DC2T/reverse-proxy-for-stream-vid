@@ -85,9 +85,10 @@ function getCookie(idMovieStream) {
     return fetch(
         `https://drive.google.com/u/7/get_video_info?docid=${idMovieStream}`
     )
-        .then(
-            (response) => response.headers.raw()['set-cookie'][0].split('; ')[0]
-        )
+        .then((response) => {
+            console.log(response.headers.raw()['set-cookie'][0].split('; '))
+            return response.headers.raw()['set-cookie'][0].split('; ')[0]
+        })
         .catch((err) => console.log(err))
     // client_redis.setex(`cookie`, 60 * 60 * 3 - 10 * 60, cookieStream)
     // req.cookieStream = cookieStream
