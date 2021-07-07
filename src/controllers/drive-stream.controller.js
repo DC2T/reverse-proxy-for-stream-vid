@@ -60,39 +60,35 @@ module.exports = {
 }
 
 function getUrlStream(idMovieStream, cookieStream) {
-    return new Promise(async (resolve, reject) => {
-        const opts = {
-            headers: {
-                cookie: cookieStream,
-            },
-        }
-        await fetch(
-            `https://drive.google.com/u/7/get_video_info?docid=${idMovieStream}`,
-            opts
-        )
-            .then((response) => response.text())
-            .then(async (body) => {
-                const data = queryString.parse(body)
-                const arrUrl = data.fmt_stream_map.split(',')
-                //lấy chất lượng cao nhất
-                const url = arrUrl[arrUrl.length - 1].split('|')[1]
+    const opts = {
+        headers: {
+            cookie: cookieStream,
+        },
+    }
+    return fetch(
+        `https://drive.google.com/u/7/get_video_info?docid=${idMovieStream}`,
+        opts
+    )
+        .then((response) => response.text())
+        .then((body) => {
+            const data = queryString.parse(body)
+            const arrUrl = data.fmt_stream_map.split(',')
+            //lấy chất lượng cao nhất
+            const url = arrUrl[arrUrl.length - 1].split('|')[1]
 
-                return resolve(url)
-            })
-            .catch((err) => reject(null))
-    })
+            return url
+        })
+        .catch((err) => console.log(err))
 }
 
 function getCookie(idMovieStream) {
-    return new Promise(async (resolve, reject) => {
-        await fetch(
-            `https://drive.google.com/u/7/get_video_info?docid=${idMovieStream}`
+    return fetch(
+        `https://drive.google.com/u/7/get_video_info?docid=${idMovieStream}`
+    )
+        .then(
+            (response) => response.headers.raw()['set-cookie'][0].split('; ')[0]
         )
-            .then((response) =>
-                resolve(response.headers.raw()['set-cookie'][0].split('; ')[0])
-            )
-            .catch((err) => reject(null))
-        // client_redis.setex(`cookie`, 60 * 60 * 3 - 10 * 60, cookieStream)
-        // req.cookieStream = cookieStream
-    })
+        .catch((err) => console.log(er))
+    // client_redis.setex(`cookie`, 60 * 60 * 3 - 10 * 60, cookieStream)
+    // req.cookieStream = cookieStream
 }
