@@ -10,7 +10,10 @@ services:
             context: .
             dockerfile: ./Dockerfile
         environment:
-            NODE_ENV: production
+            - NODE_ENV=production
+            - REDIS_HOST=${REDIS_HOST}
+            - REDIS_PORT=${REDIS_PORT}
+            - PORT=${PORT}
         ports:
             - 3000:3000
         networks:
