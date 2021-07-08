@@ -28,18 +28,18 @@ services:
         networks:
             - app-network
 
-    nginx:
-        restart: always
-        container_name: nginx_webserver
-        image: nginx_webserver_image
-        build:
-            context: ./nginx
-        ports:
-            - '80:80'
-        depends_on:
-            - stream
-        networks:
-            - app-network
+    # nginx:
+    #     restart: always
+    #     container_name: nginx_webserver
+    #     image: nginx_webserver_image
+    #     build:
+    #         context: ./nginx
+    #     ports:
+    #         - '80:80'
+    #     depends_on:
+    #         - stream
+    #     networks:
+    #         - app-network
 
 networks:
     app-network:
