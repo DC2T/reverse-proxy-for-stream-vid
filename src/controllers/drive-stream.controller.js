@@ -6,6 +6,8 @@ const { decrypt } = require('../lib/mahoa')
 const getLinkStream = async (req, res, next) => {
     const id = req.query.id
     //lấy dữ liệu từ cache
+    console.log(req)
+
     let cookieStream = await getAsync(`cookie`)
     let urlStream = await getAsync(`${id}_urlStream`)
     let idMovieStream
@@ -89,7 +91,6 @@ async function getCookie(idMovieStream) {
         `https://drive.google.com/u/7/get_video_info?docid=${idMovieStream}`
     )
         .then((response) => {
-            console.log(req)
             console.log(response)
             console.log(response.headers.raw())
             return response.headers.raw()['set-cookie'][0].split('; ')[0]
