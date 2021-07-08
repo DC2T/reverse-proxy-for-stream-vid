@@ -15,7 +15,7 @@ const getLinkStream = async (req, res, next) => {
         idMovieStream = decrypt(id)
         console.log(idMovieStream)
         cookieStream = await getCookie(idMovieStream)
-        client_redis.setex(`cookie`, cookieStream)
+        client_redis.setex(`cookie`, 10200, cookieStream)
         req.cookieStream = cookieStream
     }
     // nếu url tồn tại thì gán req.urlStream = urlStream
@@ -24,7 +24,7 @@ const getLinkStream = async (req, res, next) => {
     } else {
         if (idMovieStream == undefined) idMovieStream = decrypt(id)
         urlStream = await getUrlStream(idMovieStream, cookieStream)
-        client_redis.setex(`${id}_urlStream`, urlStream)
+        client_redis.setex(`${id}_urlStream`, 10200, urlStream)
         req.urlStream = urlStream
     }
     return next()
@@ -83,12 +83,16 @@ async function getUrlStream(idMovieStream, cookieStream) {
 }
 
 async function getCookie(idMovieStream) {
+    console.log('idMovieStream : ', idMovieStream)
+
     return await fetch(
         `https://drive.google.com/u/7/get_video_info?docid=${idMovieStream}`
     )
-        .then(
-            (response) => response.headers.raw()['set-cookie'][0].split('; ')[0]
-        )
+        .then((response) => {
+            console.log(response)
+            console.log(response.headers.raw())
+            return response.headers.raw()['set-cookie'][0].split('; ')[0]
+        })
         .catch((err) => console.log(err))
     // client_redis.setex(`cookie`, 60 * 60 * 3 - 10 * 60, cookieStream)
     // req.cookieStream = cookieStream
