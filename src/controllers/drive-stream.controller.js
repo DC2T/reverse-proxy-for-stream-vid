@@ -6,9 +6,6 @@ const { decrypt } = require('../lib/mahoa')
 const getLinkStream = async (req, res, next) => {
     const id = req.query.id
     //lấy dữ liệu từ cache
-    req.headers.host = 'localhost:3000'
-
-    console.log(req.headers)
 
     let cookieStream = await getAsync(`cookie`)
     let urlStream = await getAsync(`${id}_urlStream`)
