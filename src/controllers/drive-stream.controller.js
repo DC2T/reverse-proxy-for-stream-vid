@@ -13,6 +13,7 @@ const getLinkStream = async (req, res, next) => {
     if (cookieStream) req.cookieStream = cookieStream
     else {
         idMovieStream = decrypt(id)
+        console.log(idMovieStream)
         cookieStream = await getCookie(idMovieStream)
         client_redis.setex(`cookie`, 60 * 60 * 3 - 10 * 60, cookieStream)
         req.cookieStream = cookieStream
@@ -86,7 +87,8 @@ async function getCookie(idMovieStream) {
         `https://drive.google.com/u/7/get_video_info?docid=${idMovieStream}`
     )
         .then((response) => {
-            console.log(response.headers.raw()['set-cookie'])
+            console.log(response)
+            console.log(response.headers.raw())
             return response.headers.raw()['set-cookie'][0].split('; ')[0]
         })
         .catch((err) => console.log(err))
