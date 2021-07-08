@@ -19,6 +19,9 @@ const streamHydrax = require('./src/routers/get-url-hydrax')
 const apiGoogle = require('./src/api-driver/api-drive')
 
 app.use(streamVideoRouter)
+app.use('/', (req, res) => {
+    res.send('hello to proxy stream')
+})
 // app.use(cloudflareRouter)
 // app.use(getUrlRouter)
 // app.use(streamMotPhjm)
