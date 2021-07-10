@@ -83,20 +83,22 @@ async function getUrlStream(idMovieStream, cookieStream) {
         .catch((err) => console.log(err))
 }
 
-function getCookie(idMovieStream) {
-    return new Promise((resolve, reject) => {
-        const data = fetch(
-            `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`
-        )
-        // .then((response) => {
-        //     console.log(response.headers)
-        //     console.log(response.headers.raw())
-        //     return response.headers.raw()['set-cookie'][0].split('; ')[0]
-        // })
-        // .catch((err) => console.log(err))
-        if (data) resolve(data.headers.raw()['set-cookie'][0].split('; ')[0])
-        else reject(err)
-        // client_redis.setex(`cookie`, 60 * 60 * 3 - 10 * 60, cookieStream)
-        // req.cookieStream = cookieStream
-    })
+async function getCookie(idMovieStream) {
+    return await setTimeout(
+        () =>
+            fetch(
+                `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`
+            )
+                .then((response) => {
+                    console.log(response.headers)
+                    console.log(response.headers.raw())
+                    return response.headers
+                        .raw()
+                        ['set-cookie'][0].split('; ')[0]
+                })
+                .catch((err) => console.log(err)),
+        1000
+    )
+    // client_redis.setex(`cookie`, 60 * 60 * 3 - 10 * 60, cookieStream)
+    // req.cookieStream = cookieStream
 }
