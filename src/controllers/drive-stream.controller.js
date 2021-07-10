@@ -88,8 +88,8 @@ async function getCookie(idMovieStream) {
         `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`
     )
         .then((response) => {
+            console.log(response.status)
             console.log(response.headers)
-            console.log(response.headers.raw())
             return response.headers.raw()['set-cookie'][0].split('; ')[0]
         })
         .catch((err) => console.log(err))
