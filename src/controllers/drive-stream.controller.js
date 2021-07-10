@@ -100,6 +100,6 @@ function checkStatus(res) {
         // res.status >= 200 && res.status < 300
         return res
     } else {
-        throw MyCustomError(res.statusText)
+        console.log(res.statusText)
     }
 }
