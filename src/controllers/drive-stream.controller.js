@@ -15,19 +15,7 @@ const getLinkStream = async (req, res, next) => {
     else {
         idMovieStream = decrypt(id)
         console.log(idMovieStream)
-        cookieStream = await fetch(
-            `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`,
-            { headers: req.headers }
-        )
-            .then((response) => {
-                console.log(response.status)
-                console.log(response.headers)
-                return response.headers.raw()['set-cookie'][0].split('; ')[0]
-            })
-            .catch((err) => {
-                console.log(err)
-                return null
-            })
+        cookieStream = await getCookie(idMovieStream)
         client_redis.setex(`cookie`, 10200, cookieStream)
         req.cookieStream = cookieStream
     }
@@ -95,16 +83,21 @@ async function getUrlStream(idMovieStream, cookieStream) {
         .catch((err) => console.log(err))
 }
 
-async function getCookie(idMovieStream) {
-    return await fetch(
-        `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`
-    )
-        .then((response) => {
-            console.log(response.status)
-            console.log(response.headers)
-            return response.headers.raw()['set-cookie'][0].split('; ')[0]
-        })
-        .catch((err) => console.log(err))
-    // client_redis.setex(`cookie`, 60 * 60 * 3 - 10 * 60, cookieStream)
-    // req.cookieStream = cookieStream
+function getCookie(idMovieStream) {
+    return new Promise((resolve, reject) => {
+        const data = fetch(
+            `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`
+        )
+        // .then((response) => {
+        //     console.log(response.headers)
+        //     console.log(response.headers.raw())
+        //     return response.headers.raw()['set-cookie'][0].split('; ')[0]
+        // })
+        // .catch((err) => console.log(err))
+        if (data)
+            resolve(response.headers.raw()['set-cookie'][0].split('; ')[0])
+        else reject(err)
+        // client_redis.setex(`cookie`, 60 * 60 * 3 - 10 * 60, cookieStream)
+        // req.cookieStream = cookieStream
+    })
 }
