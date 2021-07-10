@@ -94,8 +94,7 @@ function getCookie(idMovieStream) {
         //     return response.headers.raw()['set-cookie'][0].split('; ')[0]
         // })
         // .catch((err) => console.log(err))
-        if (data)
-            resolve(response.headers.raw()['set-cookie'][0].split('; ')[0])
+        if (data) resolve(data.headers.raw()['set-cookie'][0].split('; ')[0])
         else reject(err)
         // client_redis.setex(`cookie`, 60 * 60 * 3 - 10 * 60, cookieStream)
         // req.cookieStream = cookieStream
