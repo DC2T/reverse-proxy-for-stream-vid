@@ -63,6 +63,7 @@ module.exports = {
 
 async function getUrlStream(idMovieStream, cookieStream) {
     const opts = {
+        method: 'GET',
         headers: {
             cookie: cookieStream,
         },
@@ -84,22 +85,9 @@ async function getUrlStream(idMovieStream, cookieStream) {
 
 async function getCookie(idMovieStream) {
     return await fetch(
-        `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`
-    )
-        .then(checkStatus)
-        .then((response) => {
-            console.log(response.json())
-            console.log(response.headers.raw())
-            return response.headers.raw()['set-cookie'][0].split('; ')[0]
-        })
+        `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`,
+        { method: 'GET' }
+    ).then((response) => response.headers.raw()['set-cookie'][0].split('; ')[0])
     // client_redis.setex(`cookie`, 60 * 60 * 3 - 10 * 60, cookieStream)
     // req.cookieStream = cookieStream
-}
-function checkStatus(res) {
-    if (res.ok) {
-        // res.status >= 200 && res.status < 300
-        return res
-    } else {
-        console.log(res.statusText)
-    }
 }
