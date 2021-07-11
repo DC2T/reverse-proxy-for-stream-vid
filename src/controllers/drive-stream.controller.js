@@ -2,6 +2,7 @@ const fetch = require('node-fetch')
 const { client_redis, getAsync } = require('../redis/redis')
 const queryString = require('query-string')
 const { decrypt } = require('../lib/mahoa')
+const AbortController = require('abort-controller')
 
 const getLinkStream = async (req, res, next) => {
     const id = req.query.id

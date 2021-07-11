@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "abort-controller": "^3.0.0",
     "crypto-js": "^4.0.0",
     "dotenv": "^8.3.0",
     "download": "^8.0.0",
