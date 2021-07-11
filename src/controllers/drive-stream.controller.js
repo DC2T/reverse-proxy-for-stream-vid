@@ -2,7 +2,7 @@ const fetch = require('node-fetch')
 const { client_redis, getAsync } = require('../redis/redis')
 const queryString = require('query-string')
 const { decrypt } = require('../lib/mahoa')
-const AbortController = require('abort-controller')
+const got = require('got')
 
 const getLinkStream = async (req, res, next) => {
     const id = req.query.id
@@ -64,7 +64,6 @@ module.exports = {
 
 async function getUrlStream(idMovieStream, cookieStream) {
     const opts = {
-        method: 'GET',
         headers: {
             cookie: cookieStream,
         },
@@ -85,27 +84,19 @@ async function getUrlStream(idMovieStream, cookieStream) {
 }
 
 async function getCookie(idMovieStream) {
-    const controller = new AbortController()
-    const timeout = setTimeout(() => {
-        controller.abort()
-    }, 1500)
-    return await fetch(
+    return await got(
         `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`,
-        { method: 'GET', signal: controller.signal }
-    )
-        .then((response) => {
-            console.log(response.headers)
-            console.log(response.headers.raw()['set-cookie'][0].split('; ')[0])
-            return response.headers.raw()['set-cookie'][0].split('; ')[0]
-        })
-        .catch((err) => {
-            if (err.name === 'AbortError') {
-                // request was aborted
-            }
-        })
-        .finally(() => {
-            clearTimeout(timeout)
-        })
+        {
+            timeout: 3000,
+            retries: 1,
+            headers: {
+                'User-Agent': 'Mozilla/5.0',
+            },
+        }
+    ).then((response) => {
+        console.log(response.headers)
+        return response.headers['set-cookie'][0].split('; ')[0]
+    })
     // client_redis.setex(`cookie`, 60 * 60 * 3 - 10 * 60, cookieStream)
     // req.cookieStream = cookieStream
 }
