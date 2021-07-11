@@ -84,10 +84,25 @@ async function getUrlStream(idMovieStream, cookieStream) {
 }
 
 async function getCookie(idMovieStream) {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => {
+        controller.abort()
+    }, 150)
     return await fetch(
         `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`,
-        { method: 'GET' }
-    ).then((response) => response.headers.raw()['set-cookie'][0].split('; ')[0])
+        { method: 'GET', signal: controller.signal }
+    )
+        .then(
+            (response) => response.headers.raw()['set-cookie'][0].split('; ')[0]
+        )
+        .catch((err) => {
+            if (err.name === 'AbortError') {
+                // request was aborted
+            }
+        })
+        .finally(() => {
+            clearTimeout(timeout)
+        })
     // client_redis.setex(`cookie`, 60 * 60 * 3 - 10 * 60, cookieStream)
     // req.cookieStream = cookieStream
 }
