@@ -88,7 +88,7 @@ async function getCookie(idMovieStream) {
     const controller = new AbortController()
     const timeout = setTimeout(() => {
         controller.abort()
-    }, 150)
+    }, 1500)
     return await fetch(
         `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`,
         { method: 'GET', signal: controller.signal }
