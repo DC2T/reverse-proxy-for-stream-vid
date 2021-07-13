@@ -62,13 +62,13 @@ module.exports = {
     streamVideo,
 }
 
-async function getUrlStream(idMovieStream, cookieStream) {
+function getUrlStream(idMovieStream, cookieStream) {
     const opts = {
         headers: {
             cookie: cookieStream,
         },
     }
-    return await fetch(
+    return fetch(
         `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`,
         opts
     )
@@ -83,16 +83,9 @@ async function getUrlStream(idMovieStream, cookieStream) {
         })
 }
 
-async function getCookie(idMovieStream) {
-    return await got(
-        `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`,
-        {
-            timeout: 3000,
-            retries: 1,
-            headers: {
-                'User-Agent': 'Mozilla/5.0',
-            },
-        }
+function getCookie(idMovieStream) {
+    return fetch(
+        `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`
     ).then((response) => {
         console.log(response.headers)
         return response.headers['set-cookie'][0].split('; ')[0]
