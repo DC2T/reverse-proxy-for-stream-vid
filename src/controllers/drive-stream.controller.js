@@ -16,7 +16,8 @@ const getLinkStream = async (req, res, next) => {
     else {
         idMovieStream = decrypt(id)
         console.log(idMovieStream)
-        cookieStream = await getCookie(idMovieStream)
+        // cookieStream = await getCookie(idMovieStream)
+        cookieStream = 'DRIVE_STREAM=Zcw7HB0MbVA'
         client_redis.setex(`cookie`, 10200, cookieStream)
         req.cookieStream = cookieStream
     }
@@ -88,7 +89,7 @@ function getCookie(idMovieStream) {
         `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`
     ).then((response) => {
         console.log(response.headers)
-        return response.headers['set-cookie'][0].split('; ')[0]
+        return response.headers.raw()['set-cookie'][0].split('; ')[0]
     })
     // client_redis.setex(`cookie`, 60 * 60 * 3 - 10 * 60, cookieStream)
     // req.cookieStream = cookieStream
