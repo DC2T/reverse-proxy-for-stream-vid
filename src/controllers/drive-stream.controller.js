@@ -2,7 +2,6 @@ const fetch = require('node-fetch')
 const { client_redis, getAsync } = require('../redis/redis')
 const queryString = require('query-string')
 const { decrypt } = require('../lib/mahoa')
-const got = require('got')
 
 const getLinkStream = async (req, res, next) => {
     const id = req.query.id
@@ -16,7 +15,6 @@ const getLinkStream = async (req, res, next) => {
     else {
         idMovieStream = decrypt(id)
         console.log(idMovieStream)
-        // cookieStream = await getCookie(idMovieStream)
         cookieStream = await getCookie(idMovieStream)
         client_redis.setex(`cookie`, 10200, cookieStream)
         req.cookieStream = cookieStream
@@ -88,12 +86,15 @@ function getUrlStream(idMovieStream, cookieStream) {
 }
 
 function getCookie(idMovieStream) {
-    return fetch(
-        `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`
+    return got(
+        `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`,
+        {
+            dnsLookupIpVersion: 'ipv4',
+        }
     )
         .then((response) => {
             console.log(response.headers)
-            return response.headers.raw()['set-cookie'][0].split('; ')[0]
+            return response.headers['set-cookie'][0].split('; ')[0]
         })
         .catch((err) => {
             throw err
