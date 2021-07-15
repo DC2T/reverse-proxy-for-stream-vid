@@ -2,6 +2,7 @@ const fetch = require('node-fetch')
 const { client_redis, getAsync } = require('../redis/redis')
 const queryString = require('query-string')
 const { decrypt } = require('../lib/mahoa')
+const got = require('got')
 
 const getLinkStream = async (req, res, next) => {
     const id = req.query.id
@@ -85,8 +86,8 @@ function getUrlStream(idMovieStream, cookieStream) {
         })
 }
 
-function getCookie(idMovieStream) {
-    return got(
+async function getCookie(idMovieStream) {
+    return await got(
         `https://drive.google.com/u/3/get_video_info?docid=${idMovieStream}`,
         {
             dnsLookupIpVersion: 'ipv4',
